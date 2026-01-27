@@ -1,0 +1,7 @@
+Bundle-Name: todo-list-web
+Bundle-SymbolicName: gui.todolist
+Bundle-Version: 1.0.0
+Export-Package: gui.todolist.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"
