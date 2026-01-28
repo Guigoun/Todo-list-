@@ -1,8 +1,9 @@
+repositories {
+	mavenCentral()
+	maven { url "https://repository-cdn.liferay.com/nexus/content/groups/public" }
+}
+
 dependencies {
-	compileOnly group: "com.liferay.portal", name: "release.portal.api"
 
-	// Adicionando explicitamente a biblioteca do Jakarta para o IntelliJ parar de reclamar
-	compileOnly group: 'jakarta.portlet', name: 'jakarta.portlet-api', version: '3.0.0'
-
-	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "3.1.0"
+	compileOnly group: "com.liferay.portal", name: "release.portal.api", version: "7.4.3.59-ga59"
 }
