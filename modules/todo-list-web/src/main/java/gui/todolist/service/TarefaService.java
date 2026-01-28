@@ -1,7 +1,7 @@
 package gui.todolist.service;
 
 import gui.todolist.model.Tarefa;
-import gui.todolist.model.Usuario; // CORREÇÃO: Caminho certo do pacote
+import gui.todolist.model.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 

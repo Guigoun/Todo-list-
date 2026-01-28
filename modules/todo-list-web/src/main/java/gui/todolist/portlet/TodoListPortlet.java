@@ -4,12 +4,16 @@ import gui.todolist.constants.TodoListPortletKeys;
 import gui.todolist.model.Tarefa;
 import gui.todolist.service.TarefaService;
 
-// Imports JAKARTA
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import com.liferay.portal.kernel.util.ParamUtil;
+
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
-import jakarta.portlet.Portlet;
-import jakarta.portlet.PortletException;
-import jakarta.portlet.RenderRequest;
-import jakarta.portlet.RenderResponse;
+import javax.portlet.Portlet;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.io.IOException;
@@ -38,19 +42,59 @@ public class TodoListPortlet extends MVCPortlet {
 	public void render(RenderRequest renderRequest, RenderResponse renderResponse)
 			throws IOException, PortletException {
 
-		// PASSO 1: TROQUE "listar()" PELO NOME QUE ESTÁ NO SEU ARQUIVO TAREFASERVICE
-		// Exemplo: service.getLista() ou service.buscarTarefas()
 		List<Tarefa> tarefas = service.getTodas();
 
-		if (tarefas.isEmpty()) {
-			// PASSO 2: AQUI JÁ ESTÁ CORRIGIDO COM O 'null' NO FINAL
-			service.adicionar(new Tarefa("Teste Liferay", "Funcionou!", null));
-
-			// Atualiza a lista novamente com o nome correto
-			tarefas = service.getTodas();
-		}
 
 		renderRequest.setAttribute("listaTarefas", tarefas);
-		super.render(renderRequest, renderResponse);
+	super.render(renderRequest, renderResponse);}
+
+	public void adicionarTarefa(ActionRequest actionRequest, ActionResponse actionResponse) {
+
+		// Pega o texto do formulário
+		String titulo = ParamUtil.getString(actionRequest, "titulo");
+
+		// Salva na lista
+		if (!titulo.isEmpty()) {
+			service.adicionar(new Tarefa(titulo, "Criada via Liferay", null));
+		}
+	}
+
+	//Método para concluir tarefa
+	public void concluirTarefa(ActionRequest actionRequest, ActionResponse actionResponse) {
+		// 1. Descobre qual é o número da tarefa na lista (0, 1, 2...)
+		int index = ParamUtil.getInteger(actionRequest, "tarefaIndex");
+
+		// 2. Busca a lista completa
+		List<Tarefa> lista = service.getTodas();
+
+		// 3. Se o índice for válido, marca como concluída
+		if (index >= 0 && index < lista.size()) {
+			lista.get(index).setConcluida(true);
+		}
+	}
+
+	//Método para remover da lista
+	public void excluirTarefa(ActionRequest actionRequest, ActionResponse actionResponse) {
+		int index = ParamUtil.getInteger(actionRequest, "tarefaIndex");
+		List<Tarefa> lista = service.getTodas();
+
+		if (index >= 0 && index < lista.size()) {
+			lista.remove(index);
+		}
+	}
+	//Método para salvar edição
+	public void atualizarTarefa(ActionRequest actionRequest, ActionResponse actionResponse) {
+
+		// 1. Pega o índice e o novo texto
+		int index = ParamUtil.getInteger(actionRequest, "tarefaIndex");
+		String novoTitulo = ParamUtil.getString(actionRequest, "titulo");
+
+		// 2. Busca a lista
+		List<Tarefa> lista = service.getTodas();
+
+		// 3. Se o índice for válido, atualiza o título
+		if (index >= 0 && index < lista.size() && !novoTitulo.isEmpty()) {
+			lista.get(index).setTitulo(novoTitulo);
+		}
 	}
 }
