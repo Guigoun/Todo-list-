@@ -1,48 +1,68 @@
-# 📝 Todo List Project (Liferay MVC)
+📋 Todo-list Portlet - Liferay DXP
+Este projeto consiste em um portlet de gerenciamento de tarefas desenvolvido para a plataforma Liferay DXP 7.4. A aplicação permite a organização de atividades através de uma interface moderna de cards, suporte a subtarefas e uma camada rigorosa de segurança e testes unitários.
 
-Sistema de gerenciamento de tarefas desenvolvido como parte de um estudo aprofundado sobre migração de arquitetura Java (Console para Web Modular).
+🛠️ Tecnologias e Decisões Técnicas
+Java 17: Versão utilizada para o desenvolvimento do backend, garantindo compatibilidade com as versões mais recentes do Liferay.
 
-O projeto utiliza a estrutura do **Liferay DXP 7.4** com **MVC Portlet**, demonstrando a aplicação prática de padrões de projeto e desenvolvimento modular.
+Liferay MVC Portlet: Arquitetura utilizada para o gerenciamento de ações e renderização de views.
 
-## 🚀 Sobre o Projeto
+Gradle: Gerenciador de dependências e automação de builds.
 
-Este projeto nasceu da refatoração de um sistema *Legacy* (Console Application) para uma arquitetura Web moderna baseada em Portlets.
+JUnit 4: Biblioteca utilizada para a implementação da suíte de Testes Unitários.
 
-**Objetivos Alcançados:**
-* Migração de regras de negócio (Services) de Java puro para Liferay OSGi.
-* Implementação do padrão **MVC (Model-View-Controller)** no contexto de Portlets.
-* Uso de **JSP** e **JSTL** para renderização dinâmica do front-end.
-* Configuração de ambiente com **Gradle** e **Liferay Workspace**.
+JSP & Lexicon/Liferay UI: Utilizados para criar uma interface responsiva, com barras de progresso e feedbacks visuais.
 
-## 🛠️ Tecnologias Utilizadas
+🚀 Funcionalidades Implementadas
+Gerenciamento de Tarefas (CRUD): Criação, edição, visualização e exclusão de tarefas.
 
-* **Java 11 / JDK**
-* **Liferay DXP 7.4 (GA/Update 112+)**
-* **Liferay MVC Portlet**
-* **JSP & JSTL** (Front-end)
-* **Gradle** (Gerenciador de Dependências)
-* **OSGi** (Modularidade)
+Gestão de Subtarefas: Capacidade de adicionar múltiplos itens a uma tarefa principal.
 
-## 📂 Estrutura do Projeto
+Monitoramento de Progresso: Barras de progresso automáticas calculadas com base no status das subtarefas.
 
-O projeto segue a arquitetura padrão do Liferay Workspace:
+Controle de Status: Alternância entre estados "Pendente" e "Concluído" para tarefas e itens.
 
-* `modules/todo-list-web`: Módulo principal contendo o Portlet.
-    * `model`: Classes de domínio (Tarefa, Usuario).
-    * `service`: Regras de negócio e persistência em memória.
-    * `portlet`: Controller (Camada de recepção das requisições).
-    * `resources/META-INF/resources`: Views (arquivos .jsp, css).
+🛡️ Validação e Segurança
+A aplicação foi protegida contra vulnerabilidades comuns seguindo as etapas de Validação e Segurança do desafio:
 
-## 📦 Como Rodar
+Proteção Anti-XSS: Implementada via HtmlUtil.escape no backend e <c:out> no frontend para neutralizar scripts maliciosos.
 
-1.  Certifique-se de ter o **Liferay Portal** configurado (Tomcat Bundle).
-2.  No terminal ou IDE, navegue até a raiz do projeto.
-3.  Execute o deploy do módulo:
-    ```bash
-    ./gradlew deploy
-    ```
-4.  Inicie o servidor Liferay.
-5.  Adicione o Widget **"TodoList"** (Categoria: Sample) em qualquer página do portal.
+Validação de Servidor: Uso de Validator para impedir a persistência de campos vazios ou compostos apenas por espaços.
 
----
-Desenvolvido por **Guilherme** | Desenvolvedor Back End
+Validação de Cliente: Uso do atributo required nos formulários HTML5 para feedback imediato ao usuário.
+
+⚙️ Configuração, Compilação e Execução
+Para rodar este portlet em seu ambiente Liferay local, siga os passos abaixo:
+
+1. Pré-requisitos
+   Java 17 instalado e configurado nas variáveis de ambiente.
+
+Liferay DXP 7.4 (Bundle ou rodando via Docker).
+
+2. Compilação
+   Abra o terminal na raiz do projeto (life-projeto) e execute o comando Gradle:
+
+PowerShell
+# Limpa builds anteriores e compila o projeto
+./gradlew clean build
+3. Execução dos Testes Unitários
+   Para validar as funcionalidades principais antes do deploy:
+
+PowerShell
+# Executa os testes unitários do módulo web
+./gradlew :modules:todo-list-web:test
+4. Deploy no Liferay
+   Com o servidor Liferay rodando, execute:
+
+PowerShell
+# Realiza o deploy do módulo no servidor local
+./gradlew deploy
+O portlet estará disponível na categoria "Sample" (ou na categoria definida nas propriedades do componente) após a mensagem "STARTED" no log do servidor.
+
+🧪 Suíte de Testes (QA)
+O projeto conta com uma pasta dedicada de testes (src/test/java) que valida:
+
+Adição correta de tarefas.
+
+Remoção de itens.
+
+Lógica de alternância de conclusão (status).
