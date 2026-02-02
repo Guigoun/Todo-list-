@@ -1,0 +1,4 @@
+Bundle-Name: todo-core
+Bundle-SymbolicName: gui.todolist.core
+Bundle-Version: 1.0.0
+Liferay-Service: true

@@ -1,0 +1,9 @@
+repositories {
+	mavenCentral()
+	maven { url "https://repository-cdn.liferay.com/nexus/content/groups/public" }
+}
+
+dependencies {
+
+	compileOnly group: "com.liferay.portal", name: "release.portal.api", version: "7.4.3.59-ga59"
+}
