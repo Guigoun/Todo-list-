@@ -11,7 +11,6 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
-import java.util.List;
 import javax.portlet.*;
 
 import org.osgi.service.component.annotations.Component;
@@ -37,68 +36,60 @@ public class TodoListPortlet extends MVCPortlet {
         super.doView(renderRequest, renderResponse);
     }
 
-    @ProcessAction(name = "adicionarTarefa")
+    // --- AÇÕES DE TAREFA ---
     public void adicionarTarefa(ActionRequest req, ActionResponse res) {
         String desc = ParamUtil.getString(req, "descricao");
-        // Validação no servidor: impede nulo ou vazio
-        if (Validator.isNotNull(desc) && !desc.trim().isEmpty()) {
-            // Segurança: Escape de HTML para evitar XSS
-            TarefaService.getInstance().adicionarTarefa(HtmlUtil.escape(desc));
+        if (Validator.isNotNull(desc) && !desc.trim().isEmpty()) { // Validação
+            TarefaService.getInstance().adicionarTarefa(HtmlUtil.escape(desc)); // Segurança XSS
         }
     }
 
-    @ProcessAction(name = "concluirTarefa")
-    public void concluirTarefa(ActionRequest req, ActionResponse res) {
-        TarefaService.getInstance().alternarConclusao(ParamUtil.getLong(req, "tarefaId"));
-    }
-
-    @ProcessAction(name = "excluirTarefa")
-    public void excluirTarefa(ActionRequest req, ActionResponse res) {
-        TarefaService.getInstance().removerTarefa(ParamUtil.getLong(req, "tarefaId"));
-    }
-
-    @ProcessAction(name = "atualizarTarefa")
     public void atualizarTarefa(ActionRequest req, ActionResponse res) {
         long id = ParamUtil.getLong(req, "tarefaId");
         String desc = ParamUtil.getString(req, "descricao");
-        if (id > 0 && Validator.isNotNull(desc) && !desc.trim().isEmpty()) {
+        if (id > 0 && Validator.isNotNull(desc)) {
             TarefaService.getInstance().atualizarTarefa(id, HtmlUtil.escape(desc));
         }
         res.setRenderParameter("mvcPath", "/view.jsp");
     }
 
-    @ProcessAction(name = "adicionarSubTarefa")
+    public void concluirTarefa(ActionRequest req, ActionResponse res) {
+        TarefaService.getInstance().alternarConclusao(ParamUtil.getLong(req, "tarefaId"));
+    }
+
+    public void excluirTarefa(ActionRequest req, ActionResponse res) {
+        TarefaService.getInstance().removerTarefa(ParamUtil.getLong(req, "tarefaId"));
+    }
+
+    // --- AÇÕES DE SUBTAREFA ---
     public void adicionarSubTarefa(ActionRequest req, ActionResponse res) {
-        long id = ParamUtil.getLong(req, "tarefaId");
+        long tarefaId = ParamUtil.getLong(req, "tarefaId");
         String desc = ParamUtil.getString(req, "descricaoSub");
         if (Validator.isNotNull(desc)) {
-            Tarefa t = TarefaService.getInstance().getTarefa(id);
+            Tarefa t = TarefaService.getInstance().getTarefa(tarefaId);
             if (t != null) t.adicionarSubTarefa(new SubTarefa(HtmlUtil.escape(desc)));
         }
-        redirecionarSub(res, id);
+        redirecionarSub(res, tarefaId);
     }
 
-    @ProcessAction(name = "concluirSubTarefa")
-    public void concluirSubTarefa(ActionRequest req, ActionResponse res) {
-        long id = ParamUtil.getLong(req, "tarefaId");
-        TarefaService.getInstance().alternarSubTarefa(id, ParamUtil.getLong(req, "subId"));
-        redirecionarSub(res, id);
-    }
-
-    @ProcessAction(name = "excluirSubTarefa")
-    public void excluirSubTarefa(ActionRequest req, ActionResponse res) {
-        long id = ParamUtil.getLong(req, "tarefaId");
-        TarefaService.getInstance().excluirSubTarefa(id, ParamUtil.getLong(req, "subId"));
-        redirecionarSub(res, id);
-    }
-
-    @ProcessAction(name = "atualizarSubTarefa")
     public void atualizarSubTarefa(ActionRequest req, ActionResponse res) {
-        long id = ParamUtil.getLong(req, "tarefaId");
+        long tarefaId = ParamUtil.getLong(req, "tarefaId");
         long subId = ParamUtil.getLong(req, "subId");
         String desc = ParamUtil.getString(req, "descricao");
-        TarefaService.getInstance().atualizarSubTarefa(id, subId, HtmlUtil.escape(desc));
-        redirecionarSub(res, id);
+        TarefaService.getInstance().atualizarSubTarefa(tarefaId, subId, HtmlUtil.escape(desc));
+        redirecionarSub(res, tarefaId);
+    }
+
+    public void concluirSubTarefa(ActionRequest req, ActionResponse res) {
+        long tarefaId = ParamUtil.getLong(req, "tarefaId");
+        TarefaService.getInstance().alternarSubTarefa(tarefaId, ParamUtil.getLong(req, "subId"));
+        redirecionarSub(res, tarefaId);
+    }
+
+    public void excluirSubTarefa(ActionRequest req, ActionResponse res) {
+        long tarefaId = ParamUtil.getLong(req, "tarefaId");
+        TarefaService.getInstance().excluirSubTarefa(tarefaId, ParamUtil.getLong(req, "subId"));
+        redirecionarSub(res, tarefaId);
     }
 
     private void redirecionarSub(ActionResponse res, long id) {
