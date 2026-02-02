@@ -15,20 +15,28 @@ import javax.portlet.*;
 
 import org.osgi.service.component.annotations.Component;
 
+/**
+ * Controlador principal do Todo-list utilizando a infraestrutura MVCPortlet do Liferay.
+ * Gerencia o fluxo entre as visões (JSPs) e a lógica de negócio (Service).
+ */
 @Component(
         immediate = true,
         property = {
                 "com.liferay.portlet.display-category=category.sample",
                 "javax.portlet.display-name=TodoList",
                 "javax.portlet.init-param.template-path=/",
-                "javax.portlet.init-param.view-template=/view.jsp",
+                "javax.portlet.init-param.view-template=/view.jsp", // Página inicial do portlet.
                 "javax.portlet.name=" + TodoListPortletKeys.TODOLIST,
-                "com.liferay.portlet.instanceable=false"
+                "com.liferay.portlet.instanceable=false" // Portlet de instância única na página.
         },
         service = Portlet.class
 )
 public class TodoListPortlet extends MVCPortlet {
 
+    /**
+     * Método de renderização principal.
+     * Injeta a lista de tarefas no request para exibição na view.jsp.
+     */
     @Override
     public void doView(RenderRequest renderRequest, RenderResponse renderResponse)
             throws IOException, PortletException {
@@ -36,17 +44,26 @@ public class TodoListPortlet extends MVCPortlet {
         super.doView(renderRequest, renderResponse);
     }
 
-    // --- AÇÕES DE TAREFA ---
+    // --- AÇÕES DE TAREFA (CRUD PRINCIPAL) ---
+
+    /**
+     * Adiciona uma nova tarefa principal ao sistema.
+     * Implementa validação de servidor e sanitização contra XSS.
+     */
     public void adicionarTarefa(ActionRequest req, ActionResponse res) {
         String desc = ParamUtil.getString(req, "descricao");
-        if (Validator.isNotNull(desc) && !desc.trim().isEmpty()) { // Validação
-            TarefaService.getInstance().adicionarTarefa(HtmlUtil.escape(desc)); // Segurança XSS
+
+        // Validação de backend para impedir entradas vazias ou nulas.
+        if (Validator.isNotNull(desc) && !desc.trim().isEmpty()) {
+            // HtmlUtil.escape neutraliza caracteres especiais para evitar execução de scripts (XSS).
+            TarefaService.getInstance().adicionarTarefa(HtmlUtil.escape(desc));
         }
     }
 
     public void atualizarTarefa(ActionRequest req, ActionResponse res) {
         long id = ParamUtil.getLong(req, "tarefaId");
         String desc = ParamUtil.getString(req, "descricao");
+
         if (id > 0 && Validator.isNotNull(desc)) {
             TarefaService.getInstance().atualizarTarefa(id, HtmlUtil.escape(desc));
         }
@@ -61,12 +78,18 @@ public class TodoListPortlet extends MVCPortlet {
         TarefaService.getInstance().removerTarefa(ParamUtil.getLong(req, "tarefaId"));
     }
 
-    // --- AÇÕES DE SUBTAREFA ---
+    // --- AÇÕES DE SUBTAREFA (FUNCIONALIDADES AVANÇADAS) ---
+
+    /**
+     * Cria e vincula uma subtarefa a uma tarefa pai específica.
+     */
     public void adicionarSubTarefa(ActionRequest req, ActionResponse res) {
         long tarefaId = ParamUtil.getLong(req, "tarefaId");
         String desc = ParamUtil.getString(req, "descricaoSub");
+
         if (Validator.isNotNull(desc)) {
             Tarefa t = TarefaService.getInstance().getTarefa(tarefaId);
+            // Garante que a subtarefa seja sanitizada antes da persistência em memória.
             if (t != null) t.adicionarSubTarefa(new SubTarefa(HtmlUtil.escape(desc)));
         }
         redirecionarSub(res, tarefaId);
@@ -76,6 +99,7 @@ public class TodoListPortlet extends MVCPortlet {
         long tarefaId = ParamUtil.getLong(req, "tarefaId");
         long subId = ParamUtil.getLong(req, "subId");
         String desc = ParamUtil.getString(req, "descricao");
+
         TarefaService.getInstance().atualizarSubTarefa(tarefaId, subId, HtmlUtil.escape(desc));
         redirecionarSub(res, tarefaId);
     }
@@ -92,6 +116,10 @@ public class TodoListPortlet extends MVCPortlet {
         redirecionarSub(res, tarefaId);
     }
 
+    /**
+     * Centraliza o redirecionamento para a tela de subtarefas.
+     * Garante que o ID da tarefa pai seja mantido no contexto da navegação.
+     */
     private void redirecionarSub(ActionResponse res, long id) {
         res.setRenderParameter("mvcPath", "/subtarefas.jsp");
         res.setRenderParameter("tarefaId", String.valueOf(id));
